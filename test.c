@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdlib.h>
-#include <string.h>
-
 // include NESLIB header
 #include "neslib.h"
 
@@ -133,35 +130,66 @@ void main(void)
   int x = 1;
   int y = 1;
   int t = 0;
+  int cooldown = 0;
+  
+  char pad;
+  
   apu_init();
   music_ptr = 0;
   setup_graphics();
   // draw message  
   vram_adr(NTADR_A(x,y));
-  vram_write("HELLO, WORLD!", 12);
+  vram_write("&", 1);
   // enable rendering
   ppu_on_all();
   // infinite loop
   if (!music_ptr) start_music(music1);
   while(true) 
   {
+    pad = pad_poll(0);
     waitvsync();
     t = t + 1;
-    if (t > 10)
+//    if (t > 10)
+//    {
+//      t = 0;
+    if(cooldown >0)
     {
-      t = 0;
-	vram_adr(NTADR_A(x,y));
-      vram_write("             ", 12);
-      y++;
-      x++;
-      if (y > 20)
-      {
-        y = 1;
-        x = 1;
-      }
-	vram_adr(NTADR_A(x,y));
-	vram_write("HELLO, WORLD!", 12);
+      cooldown--;
     }
+    else
+    {
+    if(pad&PAD_RIGHT)
+    {
+	vram_adr(NTADR_A(x,y));
+      vram_write(" ", 1);
+      x++;
+      if(x > 20)
+        x = 1;
+	vram_adr(NTADR_A(x,y));
+	vram_write("&", 1);
+      cooldown = 10;
+    }
+    else if(pad&PAD_LEFT)
+    {
+	vram_adr(NTADR_A(x,y));
+      vram_write(" ", 1);
+      x--;
+      if(x < 1)
+        x = 20;
+	vram_adr(NTADR_A(x,y));
+	vram_write("&", 1);
+      cooldown = 10;
+    }
+    }
+    
+    //      y++;
+//      x++;
+//      if (y > 20)
+//      {
+//        y = 1;
+//       x = 1;
+//      }
+//    }
 
     play_music();
   }
